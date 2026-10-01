@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高斯泼溅 · 给学美术的人看的三维新玩具</title>
+<style>
+  :root{
+    --bg:#0e0f14;
+    --bg2:#15171f;
+    --card:#1b1e28;
+    --line:#2a2f3d;
+    --ink:#eef1f7;
+    --ink2:#a8b0c2;
+    --ink3:#6e7689;
+    --hot:#ff7a45;
+    --hot2:#ffd166;
+    --cool:#4fc3f7;
+    --violet:#b388ff;
+    --green:#5ddc9a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* ---------- 顶部 ---------- */
+  header{
+    padding:64px 0 40px;position:relative;overflow:hidden;
+  }
+  header::before{
+    content:"";position:absolute;inset:-40% -20% auto -20%;height:120%;
+    background:
+      radial-gradient(closest-side,rgba(255,122,69,.22),transparent 70%) 25% 30%/45% 60% no-repeat,
+      radial-gradient(closest-side,rgba(79,195,247,.18),transparent 70%) 75% 20%/50% 65% no-repeat,
+      radial-gradient(closest-side,rgba(179,136,255,.16),transparent 70%) 50% 80%/55% 60% no-repeat;
+    filter:blur(20px);pointer-events:none;
+  }
+  .kicker{
+    display:inline-block;font-size:12.5px;letter-spacing:2px;
+    color:var(--hot2);border:1px solid rgba(255,209,102,.35);
+    padding:5px 13px;border-radius:99px;margin-bottom:22px;
+    background:rgba(255,209,102,.07);
+  }
+  h1{
+    font-size:clamp(30px,5.4vw,54px);line-height:1.2;font-weight:800;
+    letter-spacing:-.5px;position:relative;
+  }
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(100deg,var(--hot),var(--hot2) 45%,var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{
+    margin-top:20px;font-size:clamp(15px,2vw,18.5px);color:var(--ink2);max-width:660px;
+  }
+  .sub b{color:var(--ink);font-weight:600}
+
+  /* ---------- 通用区块 ---------- */
+  section{padding:52px 0}
+  .tag{
+    font-size:12.5px;letter-spacing:2.5px;color:var(--hot);font-weight:700;
+    margin-bottom:12px;text-transform:uppercase;
+  }
+  h2{
+    font-size:clamp(22px,3.2vw,31px);font-weight:750;line-height:1.35;
+    letter-spacing:-.3px;margin-bottom:10px;
+  }
+  h2 em{font-style:normal;color:var(--hot2)}
+  .lead{color:var(--ink2);font-size:15.5px;max-width:720px;margin-bottom:26px}
+  .lead b{color:var(--ink)}
+
+  /* ---------- 一句话卡片 ---------- */
+  .oneline{
+    margin-top:30px;padding:24px 26px;border-radius:16px;
+    background:linear-gradient(135deg,rgba(255,122,69,.13),rgba(179,136,255,.09));
+    border:1px solid rgba(255,122,69,.28);
+    font-size:clamp(16px,2.3vw,20px);line-height:1.7;font-weight:600;
+  }
+  .oneline small{display:block;margin-top:9px;font-size:13.5px;font-weight:400;color:var(--ink2);line-height:1.7}
+
+  /* ---------- 对比（网格 vs 泼溅）---------- */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;display:flex;flex-direction:column;
+  }
+  .panel .cap{
+    padding:14px 16px 12px;border-bottom:1px solid var(--line);
+  }
+  .panel .cap h3{font-size:16px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+  .panel .cap h3 span{
+    font-size:10.5px;letter-spacing:1px;padding:2.5px 7px;border-radius:5px;font-weight:700;
+  }
+  .cap.mesh h3 span{background:rgba(110,118,137,.25);color:var(--ink2)}
+  .cap.splat h3 span{background:rgba(255,122,69,.2);color:var(--hot)}
+  .panel .cap p{font-size:12.5px;color:var(--ink3);line-height:1.6}
+  .panel canvas{display:block;width:100%;background:#0a0b10;touch-action:none}
+  .panel .foot{
+    padding:11px 16px;font-size:12.5px;color:var(--ink3);
+    border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  }
+  .panel .foot b{color:var(--ink2);font-weight:600}
+
+  /* ---------- 控制台 ---------- */
+  .console{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:20px;margin-top:18px;
+  }
+  .console .grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px 24px;
+  }
+  .ctl label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:12.5px;color:var(--ink2);margin-bottom:9px;font-weight:600;
+  }
+  .ctl label b{
+    color:var(--hot2);font-weight:700;font-variant-numeric:tabular-nums;font-size:13.5px;
+  }
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:99px;
+    background:linear-gradient(90deg,var(--hot),var(--violet));outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:19px;height:19px;border-radius:50%;
+    background:#fff;border:3px solid var(--hot);cursor:pointer;
+    box-shadow:0 2px 9px rgba(0,0,0,.55);transition:transform .12s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--hot);cursor:pointer;
+  }
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  button{
+    font-family:inherit;font-size:13px;font-weight:650;color:var(--ink);
+    background:rgba(255,255,255,.06);border:1px solid var(--line);
+    padding:8px 15px;border-radius:9px;cursor:pointer;transition:.16s;
+  }
+  button:hover{background:rgba(255,255,255,.12);border-color:#3d4459}
+  button.on{
+    background:linear-gradient(135deg,var(--hot),#ff9f6b);border-color:transparent;color:#1a0e06;
+  }
+  .hint{
+    margin-top:15px;font-size:12.5px;color:var(--ink3);
+    display:flex;align-items:center;gap:7px;
+  }
+  .hint kbd{
+    background:rgba(255,255,255,.08);border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:5px;padding:1px 6px;font-size:11.5px;font-family:inherit;color:var(--ink2);
+  }
+
+  /* ---------- 三步 ---------- */
+  .steps{display:grid;gap:15px;margin-top:6px}
+  .step{
+    display:grid;grid-template-columns:56px 1fr;gap:18px;align-items:start;
+    background:var(--card);border:1px solid var(--line);border-radius:15px;padding:20px;
+  }
+  .step .no{
+    width:56px;height:56px;border-radius:14px;display:grid;place-items:center;
+    font-size:23px;font-weight:800;color:#160b04;
+    background:linear-gradient(135deg,var(--hot),var(--hot2));
+  }
+  .step.s2 .no{background:linear-gradient(135deg,var(--cool),#7ee0ff)}
+  .step.s3 .no{background:linear-gradient(135deg,var(--violet),#d9c2ff)}
+  .step h3{font-size:17px;font-weight:720;margin-bottom:6px}
+  .step p{font-size:14.5px;color:var(--ink2);line-height:1.78}
+  .step p b{color:var(--ink);font-weight:650}
+  .step .art{
+    margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;
+  }
+  .chip{
+    font-size:12px;color:var(--ink2);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);padding:4px 10px;border-radius:99px;
+  }
+
+  /* ---------- 泼溅的四个属性 ---------- */
+  .attrs{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:13px;margin-top:6px}
+  .attr{
+    background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px;
+  }
+  .attr .dot{
+    width:30px;height:30px;border-radius:9px;margin-bottom:11px;
+  }
+  .attr h4{font-size:14.5px;font-weight:700;margin-bottom:5px}
+  .attr p{font-size:12.8px;color:var(--ink3);line-height:1.7}
+  .attr p b{color:var(--ink2)}
+
+  /* ---------- 对比表 ---------- */
+  .tablewrap{overflow-x:auto;margin-top:6px;border-radius:15px;border:1px solid var(--line)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.6px}
+  th,td{padding:14px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    background:var(--bg2);font-size:12.5px;letter-spacing:.6px;
+    color:var(--ink2);font-weight:700;white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody td:first-child{color:var(--ink2);font-weight:600;white-space:nowrap}
+  .hl{background:rgba(255,122,69,.055)}
+  .hl td:first-child{color:var(--hot2)}
+  .yes{color:var(--green);font-weight:700}
+  .no{color:#e0698a;font-weight:700}
+  .mid{color:var(--hot2);font-weight:700}
+
+  /* ---------- 术语 ---------- */
+  .gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:13px;margin-top:6px}
+  .g{
+    background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 17px;
+    border-left:3px solid var(--hot);
+  }
+  .g:nth-child(3n+2){border-left-color:var(--cool)}
+  .g:nth-child(3n+3){border-left-color:var(--violet)}
+  .g dt{font-size:14px;font-weight:720;margin-bottom:5px}
+  .g dt small{font-size:11px;color:var(--ink3);font-weight:400;margin-left:5px}
+  .g dd{font-size:13px;color:var(--ink2);line-height:1.72}
+  .g dd b{color:var(--hot2);font-weight:650}
+
+  /* ---------- 工具 ---------- */
+  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:13px;margin-top:6px}
+  .tool{
+    background:linear-gradient(160deg,var(--card),#171a23);
+    border:1px solid var(--line);border-radius:13px;padding:17px;
+  }
+  .tool .top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .tool .name{font-size:14.5px;font-weight:720}
+  .tool .badge{
+    font-size:10.5px;padding:2.5px 8px;border-radius:99px;font-weight:700;letter-spacing:.4px;
+    background:rgba(93,220,154,.16);color:var(--green);
+  }
+  .tool .badge.b2{background:rgba(79,195,247,.16);color:var(--cool)}
+  .tool .badge.b3{background:rgba(179,136,255,.16);color:var(--violet)}
+  .tool p{font-size:12.8px;color:var(--ink3);line-height:1.7}
+
+  /* ---------- 局限 ---------- */
+  .limits{display:grid;gap:11px;margin-top:6px}
+  .lim{
+    display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start;
+    background:rgba(224,105,138,.05);border:1px solid rgba(224,105,138,.2);
+    border-radius:12px;padding:15px 17px;
+  }
+  .lim .ic{font-size:17px;line-height:1.5}
+  .lim p{font-size:13.6px;color:var(--ink2);line-height:1.72}
+  .lim p b{color:#ff9fb8;font-weight:650}
+
+  footer{
+    padding:44px 0 60px;border-top:1px solid var(--line);margin-top:22px;
+    color:var(--ink3);font-size:12.8px;text-align:center;line-height:2;
+  }
+  footer b{color:var(--ink2)}
+
+  @media (max-width:760px){
+    header{padding:44px 0 28px}
+    section{padding:38px 0}
+    .duo{grid-template-columns:1fr}
+    .step{grid-template-columns:1fr;gap:13px}
+    .step .no{width:46px;height:46px;font-size:19px;border-radius:12px}
+    .oneline{padding:19px 20px}
+    .console{padding:16px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">3D GAUSSIAN SPLATTING</div>
+    <h1>用<em>几百万个彩色光斑</em><br>堆出一个真实世界</h1>
+    <p class="sub">
+      你不需要会建模，不需要懂拓扑，不需要展 UV。<br>
+      高斯泼溅（Gaussian Splatting）是一种<b>用照片直接做出可以转着看的 3D 场景</b>的技术——
+      它的工作方式，更接近<b>画画</b>，而不是搭积木。
+    </p>
+
+    <div class="oneline">
+      一句话：把三维空间当成一张巨大的画布，往里面喷几百万个<b>软边的彩色笔触</b>，让它们自己融成实物。
+      <small>传统 3D 是「先搭骨架，再贴皮」；高斯泼溅是「一层层喷颜料，喷到像为止」。</small>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 1. 一眼看懂的区别 ============ -->
+<section>
+  <div class="wrap">
+    <div class="tag">Visual 01</div>
+    <h2>先看区别：<em>网格</em> 和 <em>泼溅</em> 是两种完全不同的东西</h2>
+    <p class="lead">
+      传统三维模型是<b>空心的壳</b>——由无数三角形拼成，只画表面。
+      高斯泼溅是<b>一团团的雾</b>——由无数个半透明椭圆体填满空间，前后叠加出体积感。
+    </p>
+
+    <div class="duo">
+      <div class="panel">
+        <div class="cap mesh">
+          <h3>传统网格 <span>MESH</span></h3>
+          <p>三角形拼成的空心外壳。放大看就是一个个平面。</p>
+        </div>
+        <canvas id="cvMesh" style="height:400px"></canvas>
+        <div class="foot">
+          <span><b>9,164</b> 个三角形</span>
+          <span>表面 · 空心 · 有棱角</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="cap splat">
+          <h3>高斯泼溅 <span>SPLATS</span></h3>
+          <p>几万个软边光斑叠在一起，自动融合成连续表面。</p>
+        </div>
+        <canvas id="cvSplat" style="height:400px"></canvas>
+        <div class="foot">
+          <span><b id="splatCount">9,000</b> 个高斯球</span>
+          <span>体积 · 半透明 · 无棱角</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. 亲手玩 ============ -->
+<section style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="tag">Interactive</div>
+    <h2>亲手转一转，把光斑<em>调稀调密</em></h2>
+    <p class="lead">
+      下面是真的 3D 泼溅渲染：每个光斑都在三维空间里有位置、大小和颜色，
+      渲染时按<b>离你远近排序</b>再叠上去。拖动它，看不同角度下光斑如何重新排列。
+    </p>
+
+    <div class="console">
+      <div style="border-radius:13px;overflow:hidden;border:1px solid var(--line);margin-bottom:20px">
+        <canvas id="cvPlay" style="display:block;width:100%;height:520px;background:radial-gradient(circle at 50% 40%,#12141c,#08090d);touch-action:none;cursor:grab"></canvas>
+      </div>
+
+      <div class="grid">
+        <div class="ctl">
+          <label>光斑数量 <b id="lbCount">6,000</b></label>
+          <input type="range" id="rgCount" min="300" max="20000" step="100" value="6000">
+        </div>
+        <div class="ctl">
+          <label>光斑大小 <b id="lbSize">1.00×</b></label>
+          <input type="range" id="rgSize" min="0.5" max="2.5" step="0.05" value="1">
+        </div>
+        <div class="ctl">
+          <label>旋转速度 <b id="lbSpin">0.30</b></label>
+          <input type="range" id="rgSpin" min="0" max="1.5" step="0.05" value="0.3">
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="bTorus" class="on">🍩 环面</button>
+        <button id="bSphere">🔵 球体</button>
+        <button id="bHeart">❤️ 爱心</button>
+        <button id="bReset">↺ 复位视角</button>
+      </div>
+
+      <div class="hint">
+        <kbd>按住拖动</kbd> 旋转 · <kbd>滚轮 / 双指</kbd> 缩放 · 把「光斑数量」拉到最小，你会看到它散成一个个独立的圆点——这就是它的最小单位。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. 三步 ============ -->
+<section>
+  <div class="wrap">
+    <div class="tag">Pipeline</div>
+    <h2>它到底怎么做的？<em>只有三步</em></h2>
+    <p class="lead">
+      你只需要一部手机（或相机）绕着一个东西拍一圈照片，剩下的是电脑的事。
+    </p>
+
+    <div class="steps">
+      <div class="step s1">
+        <div class="no">1</div>
+        <div>
+          <h3>拍一圈照片（或一段视频）</h3>
+          <p>
+            绕着物体、或在一个房间里走动，<b>拍几十到几百张会重叠的照片</b>。
+            重叠很重要——就像拼图要有咬合处，电脑要靠重叠部分算出一张照片的拍摄位置。
+          </p>
+          <div class="art">
+            <span class="chip">📱 手机就行</span>
+            <span class="chip">走慢一点</span>
+            <span class="chip">光线别忽明忽暗</span>
+            <span class="chip">覆盖要全，别漏背面</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step s2">
+        <div class="no">2</div>
+        <div>
+          <h3>电脑撒点：在空间里喷出一团光斑</h3>
+          <p>
+            软件先根据照片之间的对应关系，反推出每张照片站在哪儿，然后在空间里<b>撒下几百万个高斯球</b>。
+            一开始它们是非常模糊的一团雾，颜色和位置都只是猜的。
+          </p>
+          <div class="art">
+            <span class="chip">这一步叫「稀疏重建」</span>
+            <span class="chip">得到一堆原始点云</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step s3">
+        <div class="no">3</div>
+        <div>
+          <h3>反复改：像照片就留，不像就挪</h3>
+          <p>
+            电脑把当前这团光斑<b>「拍」成一张虚拟照片</b>，跟你真实的照片对比。
+            哪里不像，就调整那几颗高斯球的位置、大小、颜色、透明度；
+            太空的地方<b>再复制出新的小球</b>，多余的就缩小或变透明。
+            重复几万次之后，光斑就长成了实物。
+          </p>
+          <div class="art">
+            <span class="chip">越练越像</span>
+            <span class="chip">自动加密细节处</span>
+            <span class="chip">几十分钟到几小时</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. 四个属性 ============ -->
+<section style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="tag">Anatomy</div>
+    <h2>每一颗高斯球，只有<em>四件事</em>要记</h2>
+    <p class="lead">
+      听上去很复杂，其实每个小光斑身上只存了四个数字。用画笔的比喻就秒懂：
+    </p>
+
+    <div class="attrs">
+      <div class="attr">
+        <div class="dot" style="background:linear-gradient(135deg,#4fc3f7,#b388ff)"></div>
+        <h4>① 我在哪</h4>
+        <p>三维坐标 <b>(x, y, z)</b>。<br>相当于笔尖落在画布的哪个位置。</p>
+      </div>
+      <div class="attr">
+        <div class="dot" style="background:linear-gradient(135deg,#ff7a45,#ffd166)"></div>
+        <h4>② 我多大、什么形状</h4>
+        <p>一个可以拉伸、旋转的椭球。<b>扁平还是细长</b>，决定了它贴合表面的方式。</p>
+      </div>
+      <div class="attr">
+        <div class="dot" style="background:linear-gradient(135deg,#e0698a,#ff9fb8)"></div>
+        <h4>③ 我什么颜色</h4>
+        <p>而且不是单一颜色——<b>从不同方向看可以是不同颜色</b>，所以金属反光、丝绸光泽都能还原。</p>
+      </div>
+      <div class="attr">
+        <div class="dot" style="background:linear-gradient(135deg,#5ddc9a,#a8f0c8)"></div>
+        <h4>④ 我多透明</h4>
+        <p>透明度越低越实在，越高越像雾。<b>空气、玻璃、毛发</b>靠它表现。</p>
+      </div>
+    </div>
+
+    <div class="oneline" style="margin-top:22px">
+      所以它不像模型那样有「一个确定的外壳」——<b>它是一团有体积的雾</b>。
+      <small>这也是为什么它放大到极近距离时，会看到一颗颗椭圆，而不是光滑平面。这不是 bug，是它的本质。</small>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. 对比表 ============ -->
+<section>
+  <div class="wrap">
+    <div class="tag">Comparison</div>
+    <h2>和你知道的那几种方式<em>有什么不同</em></h2>
+    <p class="lead">如果你用过 Blender 或听说过 NeRF，这张表能帮你快速定位它。</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>对比项</th>
+            <th>传统建模 / 扫描<br><span style="font-weight:400">Mesh</span></th>
+            <th>NeRF<br><span style="font-weight:400">神经网络体渲染</span></th>
+            <th class="hl">高斯泼溅<br><span style="font-weight:400">Gaussian Splatting</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>它是什么做的</td><td>三角形拼的空壳</td><td>一个记住整片空间的神经网络</td><td class="hl">几百万个半透明椭球</td></tr>
+          <tr><td>能从照片来吗</td><td class="no">不能，要人工建</td><td class="yes">能</td><td class="hl yes">能</td></tr>
+          <tr><td>实时转动流畅度</td><td class="yes">很流畅</td><td class="no">很卡，常要几十秒出一帧</td><td class="hl yes">很流畅，手机也能跑</td></tr>
+          <tr><td>画面真实感</td><td class="mid">取决于材质做得细不细</td><td class="yes">非常高</td><td class="hl yes">非常高</td></tr>
+          <tr><td>能改吗（编辑性）</td><td class="yes">随便改，标准流程</td><td class="no">几乎没法改</td><td class="hl mid">能改，但工具还不成熟</td></tr>
+          <tr><td>文件大小</td><td class="yes">小，几 MB</td><td class="mid">中</td><td class="hl no">大，常几百 MB 到几 GB</td></tr>
+          <tr><td>缺点</td><td>做不出照片级真实感</td><td>太慢，没法交互</td><td class="hl">文件大、边缘可能有漂浮物、不好做动画</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. 术语 ============ -->
+<section style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="tag">Glossary</div>
+    <h2>听懂行话：<em>六个词</em>就够聊天了</h2>
+    <p class="lead">别人说这些词的时候，你至少知道他们在讲什么。</p>
+
+    <dl class="gloss">
+      <div class="g">
+        <dt>Splat <small>泼溅 / 光斑</small></dt>
+        <dd>就是那一颗颗软边的小球，也是这项技术名字的来源。<b>一个 splat 等于一笔颜料。</b></dd>
+      </div>
+      <div class="g">
+        <dt>Gaussian <small>高斯</small></dt>
+        <dd>指它边缘的衰减方式：中间最实、往外越来越淡，像喷枪喷出来的雾。<b>所以边缘是软的，不会看到硬边。</b></dd>
+      </div>
+      <div class="g">
+        <dt>Point Cloud <small>点云</small></dt>
+        <dd>还没加工过的一堆空间点。<b>可以理解成「打了草稿的泼溅」</b>，只有位置和大概颜色。</dd>
+      </div>
+      <div class="g">
+        <dt>COLMAP <small>摄影测量工具</small></dt>
+        <dd>一个免费软件，负责<b>从照片反推出拍摄位置</b>。它是绝大多数泼溅流程的第一步。</dd>
+      </div>
+      <div class="g">
+        <dt>Training <small>训练</small></dt>
+        <dd>就是第三步那个「反复改」的过程。<b>不是在教 AI 画画，是在调那几百万个球。</b></dd>
+      </div>
+      <div class="g">
+        <dt>Densify / Prune <small>加密 / 修剪</small></dt>
+        <dd>细节不够的地方<b>复制出新球（加密）</b>，多余飘着的球<b>缩小删掉（修剪）</b>。这是自动进行的。</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ 7. 工具 ============ -->
+<section>
+  <div class="wrap">
+    <div class="tag">Tools</div>
+    <h2>想自己试？<em>这几个够用了</em></h2>
+    <p class="lead">从完全不用装软件，到专业流程，按你的需求挑。</p>
+
+    <div class="tools">
+      <div class="tool">
+        <div class="top"><span class="name">Luma AI</span><span class="badge">最简单</span></div>
+        <p>手机 App 拍一圈，云端自动算好，<b>直接生成可以在网页里转的链接</b>。零基础首选，先玩这个找感觉。</p>
+      </div>
+      <div class="tool">
+        <div class="top"><span class="name">Postshot</span><span class="badge b2">Windows 桌面</span></div>
+        <p>本地训练、界面友好，有免费额度。<b>适合想认真做、又不想敲命令的人。</b>处理自己拍的照片很顺。</p>
+      </div>
+      <div class="tool">
+        <div class="top"><span class="name">SuperSplat</span><span class="badge b2">浏览器</span></div>
+        <p>在线编辑器，用来<b>清理泼溅文件</b>：删掉漂浮的杂点、裁掉多余部分、压缩体积。免费开源。</p>
+      </div>
+      <div class="tool">
+        <div class="top"><span class="name">Blender 插件</span><span class="badge b3">接入老流程</span></div>
+        <p>已经有把泼溅导入 Blender 的插件了。<b>可以拿它当参考、当背景、当拍摄素材</b>，和传统建模混着用。</p>
+      </div>
+      <div class="tool">
+        <div class="top"><span class="name">Unity / Unreal</span><span class="badge b3">做交互</span></div>
+        <p>游戏引擎都有泼溅渲染插件。<b>适合做可交互的场景、展览、虚拟拍摄。</b></p>
+      </div>
+      <div class="tool">
+        <div class="top"><span class="name">3DGS 官方代码</span><span class="badge b3">要敲命令</span></div>
+        <p>原始研究代码，效果最正、参数最多，但<b>需要显卡和命令行基础</b>。建议玩熟了再碰。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. 局限 ============ -->
+<section style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="tag">Limits</div>
+    <h2>也要知道它<em>做不到什么</em></h2>
+    <p class="lead">任何工具都有脾气。提前知道，少走弯路。</p>
+
+    <div class="limits">
+      <div class="lim"><span class="ic">📦</span><p><b>文件很大。</b>几百万个球，动辄几百 MB 到几 GB。发给别人、放到网页里都需要先压缩。</p></div>
+      <div class="lim"><span class="ic">👻</span><p><b>会有「幽灵」。</b>空中常漂浮着一些半透明的杂点，多半是拍摄时移动的物体（路人、晃动的树叶）造成的，需要手动清理。</p></div>
+      <div class="lim"><span class="ic">🔦</span><p><b>光是「焊死」在里面的。</b>它记录的是当时的光照。你想换个灯光、换个时间——不行，它不会重新打光。</p></div>
+      <div class="lim"><span class="ic">🎬</span><p><b>不好做动画。</b>它是个静止的快照。想让里面的人物动起来，目前还很困难，是研究热点。</p></div>
+      <div class="lim"><span class="ic">🪞</span><p><b>镜面、玻璃、水面容易翻车。</b>因为它们从不同角度看完全不同，算法很难处理干净。</p></div>
+      <div class="lim"><span class="ic">🏗️</span><p><b>不是「模型」，不能直接拿去建模。</b>它不能像网格那样挤出、倒角、布尔运算。要用还得转换。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. 结尾 ============ -->
+<section>
+  <div class="wrap">
+    <div class="oneline" style="background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(179,136,255,.1));border-color:rgba(79,195,247,.3)">
+      给学美术的你：这项技术最迷人的地方，是它<b>把「做 3D」这件事的门槛，从「学会软件」降到了「会拍照」</b>。
+      <small>
+        你不需要先花半年学拓扑和展 UV，才能做出一个三维的东西。
+        拿起手机绕一圈，你就有了一个能被任何人转着看的真实空间。<br>
+        而你对光影、颜色、质感的判断力——那些在画室里练出来的东西——在挑选、清理、调整泼溅结果的时候，恰恰是最值钱的。
+      </small>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    页面里的所有三维演示都是<b>实时用 Canvas 计算的</b>：<br>
+    三维高斯球 → 按视角旋转 → 透视投影 → 深度排序 → 半透明叠加。<br>
+    <span style="display:inline-block;margin-top:14px">
+      高斯泼溅论文发表于 SIGGRAPH 2023 · 本页为通俗科普，非技术文档
+    </span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+/* =========================================================================
+   高斯泼溅科普页 —— 所有三维演示均为实时计算
+   真实 3DGS 流程：3D 高斯椭球 → 协方差投影成 2D 椭圆 → 按深度排序 → alpha 混合
+   本页用 2D 圆形径向渐变近似椭球投影（原理一致，便于在浏览器里流畅运行）
+   ========================================================================= */
+
+/* ---------------------------------------------------------- 工具 */
+const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
+/* 静态模式：?static=1 时不启动动画循环，只渲染一帧（方便截图/做分享图） */
+const STATIC = typeof location !== 'undefined' && /[?&]static=1/.test(location.search);
+/* 聚焦模式：?focus=元素id —— 只显示该区块（便于截图/做分享图） */
+const FOCUS = (typeof location !== 'undefined'
+  ? (location.search.match(/[?&]focus=([\w-]+)/) || [])[1] : null);
+if(FOCUS && typeof document !== 'undefined'){
+  const st=document.createElement('style');
+  st.textContent='body.focus > header,body.focus > section,body.focus > footer{display:none!important}'
+    +'body.focus > section.focus-on{display:block!important;padding:14px 0}';
+  document.head.appendChild(st);
+  const apply=()=>{
+    const el=document.getElementById(FOCUS);
+    if(!el) return false;
+    let sec=el; while(sec && sec.tagName!=='SECTION') sec=sec.parentElement;
+    if(sec) sec.classList.add('focus-on');
+    document.body.classList.add('focus');
+    return true;
+  };
+  if(!apply()) document.addEventListener('DOMContentLoaded', apply);
+}
+
+/* 径向渐变缓存的正确用法说明：
+   渐变一旦创建就固定在某个坐标系里 —— 若在单位空间原点建渐变，
+   却把圆画在屏幕坐标 (sx,sy)，填充会退化成透明。
+   所以用法必须是：建一次单位渐变 → 每颗球 translate(sx,sy)+scale(r) → 画单位圆。 */
+function gradientCache(ctx){
+  const cache = new Map();
+  return (color)=>{
+    if(!cache.has(color)){
+      const g = ctx.createRadialGradient(0,0,0, 0,0,1);
+      /* 前 30% 保持高不透明：真实高斯球是「实心椭圆 + 软边」 */
+      g.addColorStop(0,    hexA(color,1));
+      g.addColorStop(0.30, hexA(color,0.92));
+      g.addColorStop(0.55, hexA(color,0.48));
+      g.addColorStop(0.78, hexA(color,0.16));
+      g.addColorStop(1,    hexA(color,0));
+      cache.set(color,g);
+    }
+    return cache.get(color);
+  };
+}
+/* #rrggbb → rgba() */
+function hexA(hex, a){
+  const n = parseInt(hex.slice(1),16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+/* 把颜色按亮度因子调暗/调亮（用于深度雾） */
+function shadeHex(hex, k){
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  r=clamp(Math.round(r*k),0,255); g=clamp(Math.round(g*k),0,255); b=clamp(Math.round(b*k),0,255);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+const hsl2hex = (h,s,l)=>{
+  h=((h%360)+360)%360; s/=100; l/=100;
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r,g,b;
+  if(h<60){r=c;g=x;b=0} else if(h<120){r=x;g=c;b=0} else if(h<180){r=0;g=c;b=x}
+  else if(h<240){r=0;g=x;b=c} else if(h<300){r=x;g=0;b=c} else {r=c;g=0;b=x}
+  const to=(v)=>Math.round((v+m)*255).toString(16).padStart(2,'0');
+  return '#'+to(r)+to(g)+to(b);
+};
+
+/* ---------------------------------------------------------- 生成三维形状 */
+/* 每个点: {x,y,z, n:[法线], color, seed} —— 颜色方向性变化用来模拟“从不同角度看颜色不同” */
+const SHAPES = {
+  torus(N){
+    const R=1.05, r=0.42, pts=[];
+    for(let i=0;i<N;i++){
+      const u=Math.random()*Math.PI*2, v=Math.random()*Math.PI*2;
+      const cu=Math.cos(u), su=Math.sin(u), cv=Math.cos(v), sv=Math.sin(v);
+      const rr = r*Math.pow(Math.random(), 0.42);          // 往表面偏，更像实心壳
+      const sx = (R+rr*cv)*cu, sy = (R+rr*cv)*su, sz = rr*sv;
+      /* 法线：管截面方向 */
+      const nx = cv*cu, ny = cv*su, nz = sv;
+      /* 明暗 + 每个球自身的小幅随机：让表面有连续的色彩层次，
+         而不是糊成一块纯色——这是「一笔笔颜料」的观感来源 */
+      const shade = 0.5+0.5*(nz*0.55+cv*0.45+0.5);
+      const jitter = (Math.random()-0.5);
+      const hue = 14 + 46*((sy+1.3)/2.6) + 12*shade + jitter*16;
+      pts.push({x:sx,y:sy,z:sz, nx,ny,nz,
+        color: hsl2hex(hue, 76+jitter*14, 34+42*shade+jitter*12),
+        seed: Math.random()});
+    }
+    return {pts, radius:1.45};
+  },
+  sphere(N){
+    const pts=[];
+    for(let i=0;i<N;i++){
+      /* 球面均匀分布 + 少量厚度 */
+      const t=Math.acos(1-2*Math.random()), p=Math.random()*Math.PI*2;
+      const rr=0.98+0.06*Math.random();
+      const x=rr*Math.sin(t)*Math.cos(p), y=rr*Math.cos(t), z=rr*Math.sin(t)*Math.sin(p);
+      const shade=0.5+0.5*y;
+      const hue=190+70*((x+1)/2);
+      pts.push({x,y,z, nx:x,ny:y,nz:z, color:hsl2hex(hue,72,42+34*shade), seed:Math.random()});
+    }
+    return {pts, radius:1.3};
+  },
+  heart(N){
+    const pts=[];
+    for(let i=0;i<N;i++){
+      /* 心形参数面：x=16sin³t, y=13cos t-5cos2t-2cos3t-cos4t，沿 z 挤出厚度 */
+      const t=Math.random()*Math.PI*2;
+      const push=Math.pow(Math.random(),0.5);
+      let hx=16*Math.pow(Math.sin(t),3);
+      let hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+      hx*=push*0.072; hy*=push*0.072;
+      const z=(Math.random()*2-1)*0.26*Math.sqrt(Math.max(0,1-push*push));
+      /* 法线近似朝外 */
+      const len=Math.hypot(hx,hy)||1;
+      const shade=0.5+0.5*(hy/1.05);
+      pts.push({x:hx,y:hy,z, nx:hx/len,ny:hy/len,nz:0,
+        color:hsl2hex(340+22*((hx+1.1)/2.2), 82, 40+36*shade), seed:Math.random()});
+    }
+    return {pts, radius:1.15};
+  }
+};
+
+/* ---------------------------------------------------------- 泼溅渲染器 */
+class SplatView {
+  constructor(canvas, opts = {}){
+    this.cv = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.grad = gradientCache(this.ctx);
+    this.rotX = opts.rotX ?? -0.42;
+    this.rotY = opts.rotY ?? 0.6;
+    this.zoom = 1;
+    this.spin = opts.spin ?? 0;
+    this.gs = opts.gs ?? 1;
+    this.showPoints = false;
+    this.sizeMul = opts.sizeMul ?? 1;
+    this.hueShift = 0;
+    this.points = [];
+    this.radius = 1.3;
+    this._buf = [];
+    this._dpr = 1;
+    this.resize();
+  }
+  setShape(shape, N){
+    const s = SHAPES[shape](N);
+    this.points = s.pts;
+    this.radius = s.radius;
+    /* 光斑半径只与物体尺度有关，与数量无关 —— 这一点很重要：
+       数量少时应该是「一个个看得清的光点，彼此分离」，
+       数量多时才「连成面」。若让半径随数量反向变化，
+       数量一少就会糊成一大团，反而看不出它是怎么由点变面的。 */
+    this.baseR = s.radius * 0.085;
+  }
+  resize(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    /* 高度必须来自 CSS 显式值：若只给 canvas 的 height 属性，
+       配合 width:100% 会让固有宽高比把布局高度压扁，导致 focal 取错、光斑算小 */
+    const w = this.cv.clientWidth || 600;
+    const h = this.cv.clientHeight || 400;
+    this._dpr = dpr;
+    this.cv.width  = Math.round(w * dpr);
+    this.cv.height = Math.round(h * dpr);
+    this.W = w; this.H = h;
+    this._sig = w + 'x' + h;
+  }
+  /* 仅在尺寸真的变了才重建后备缓冲（避免每帧清空画布带来的开销） */
+  syncSize(){
+    const w = this.cv.clientWidth || 600;
+    const h = this.cv.clientHeight || 400;
+    if(this._sig !== w + 'x' + h) this.resize();
+  }
+  /* 旋转矩阵：先绕 X 再绕 Y */
+  rotate(p){
+    const cx=Math.cos(this.rotX), sx=Math.sin(this.rotX);
+    const cy=Math.cos(this.rotY), sy=Math.sin(this.rotY);
+    /* 绕 X */
+    const y1 = p.y*cx - p.z*sx;
+    const z1 = p.y*sx + p.z*cx;
+    /* 绕 Y */
+    const x2 =  p.x*cy + z1*sy;
+    const z2 = -p.x*sy + z1*cy;
+    return {x:x2, y:y1, z:z2,
+            nx:p.nx*cy + (p.ny*sx + p.nz*cx)*sy,
+            ny:p.ny*cx - p.nz*sx,
+            nz:-p.nx*sy + (p.ny*sx + p.nz*cx)*cy};
+  }
+  render(){
+    this.syncSize();                 // 尺寸变了才重建后备缓冲
+    const ctx=this.ctx, W=this.W, H=this.H;
+    ctx.setTransform(this._dpr,0,0,this._dpr,0,0);
+    ctx.clearRect(0,0,W,H);
+
+    const cx=W/2, cy=H/2;
+    const focal = Math.min(W,H) * 0.92 * this.zoom;
+    const camZ = 3.4;
+    const baseR = this.baseR * this.sizeMul;
+    const pts = this.points;
+    const buf = this._buf;
+    buf.length = 0;
+
+    for(let i=0;i<pts.length;i++){
+      const p = this.rotate(pts[i]);
+      const zc = p.z + camZ;                       // 相机在 +z 方向
+      if(zc < 0.35) continue;                      // 在相机后面
+      const k = focal / zc;
+      const sx = cx + p.x*k, sy = cy - p.y*k;
+      let r = baseR * k;
+      if(r < 0.28) continue;
+      if(sx < -r*2 || sx > W+r*2 || sy < -r*2 || sy > H+r*2) continue;
+      buf.push({sx, sy, r, zc, i, nd: p.nz});   // nd = 法线与视线方向的夹角余弦
+    }
+    /* 画家算法：远的先画 */
+    buf.sort((a,b)=> b.zc - a.zc);
+
+    /* 真·泼溅是有序 alpha 混合（像颜料叠加），不是发光叠加：
+       用加法混合会让几万个光斑迅速累积到纯白，反而失去体积感 */
+    ctx.globalCompositeOperation = 'source-over';
+    const maxZ = 6.0, minZ = 1.4;
+    for(let j=0;j<buf.length;j++){
+      const b = buf[j];
+      const t = clamp((b.zc - minZ) / (maxZ - minZ), 0, 1);   // 0 近 → 1 远
+      const p = pts[b.i];
+
+      if(this.showPoints){
+        ctx.globalAlpha = 0.95 - t*0.4;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(b.sx, b.sy, Math.max(0.9, b.r*0.30), 0, 6.2832);
+        ctx.fill();
+        continue;
+      }
+
+      ctx.globalAlpha = (0.46 - t*0.22) * (1 - t*0.08);
+      ctx.fillStyle = this.grad(shadeHex(p.color, 1.28 - t*0.72));
+      /* 单位渐变 + 逐球变换：translate 到球心，再按半径缩放后画单位圆。
+         掠射角越大越扁（近似椭球投影） */
+      const flat = clamp(0.55 + 0.45*Math.abs(b.nd), 0.45, 1);
+      ctx.save();
+      ctx.translate(b.sx, b.sy);
+      ctx.scale(b.r, b.r * flat);
+      ctx.beginPath();
+      ctx.arc(0, 0, 1, 0, 6.2832);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ---------------------------------------------------------- 左侧：网格线框 */
+function drawMesh(canvas){
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  const W = canvas.clientWidth || 400, H = canvas.clientHeight || 470;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const R=1.05, r=0.42, NU=34, NV=14;
+  const cx=W/2, cy=H/2, focal=Math.min(W,H)*0.92;
+  const rx=-0.42, ry=0.6;
+  const cX=Math.cos(rx), sX=Math.sin(rx), cY=Math.cos(ry), sY=Math.sin(ry);
+  const camZ=3.4;
+  const proj=(u,v)=>{
+    const cu=Math.cos(u), su=Math.sin(u), cv=Math.cos(v), sv=Math.sin(v);
+    let x=(R+r*cv)*cu, y=(R+r*cv)*su, z=r*sv;
+    const y1=y*cX - z*sX, z1=y*sX + z*cX;
+    const x2=x*cY + z1*sY, z2=-x*sY + z1*cY;
+    const zc=z2+camZ;
+    const k=focal/zc;
+    return {X:cx+x2*k, Y:cy-y1*k, z:zc};
+  };
+  const grid=[];
+  for(let iu=0;iu<NU;iu++){
+    const u=iu/NU*Math.PI*2, col=[];
+    for(let iv=0;iv<=NV;iv++) col.push(proj(u, iv/NV*Math.PI*2));
+    grid.push(col);
+  }
+  for(let iv=0;iv<NV;iv++){
+    const v=iv/NV*Math.PI*2, col=[];
+    for(let iu=0;iu<=NU;iu++) col.push(proj(iu/NU*Math.PI*2, v));
+    grid.push(col);
+  }
+  /* 背面淡、正面亮：按线段中点深度决定 */
+  const segs=[];
+  for(const col of grid){
+    for(let i=0;i<col.length-1;i++){
+      const a=col[i], b=col[i+1];
+      segs.push({a,b,z:(a.z+b.z)/2});
+    }
+  }
+  segs.sort((p,q)=>q.z-p.z);
+  for(const s of segs){
+    const t=clamp((s.z-1.6)/3.4,0,1);
+    ctx.strokeStyle=`rgba(${Math.round(120-t*60)},${Math.round(200-t*90)},255,${(0.72-t*0.5).toFixed(3)})`;
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(s.a.X, s.a.Y);
+    ctx.lineTo(s.b.X, s.b.Y);
+    ctx.stroke();
+  }
+  /* 顶点 */
+  ctx.fillStyle='rgba(200,235,255,.9)';
+  for(let iu=0;iu<NU;iu++){
+    for(let iv=0;iv<NV;iv++){
+      const p=proj(iu/NU*Math.PI*2, iv/NV*Math.PI*2);
+      const t=clamp((p.z-1.6)/3.4,0,1);
+      ctx.globalAlpha=0.85-t*0.6;
+      ctx.fillRect(p.X-1.4,p.Y-1.4,2.8,2.8);
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---------------------------------------------------------- 初始化：对比区 */
+(function initCompare(){
+  const cvM = document.getElementById('cvMesh');
+  const cvS = document.getElementById('cvSplat');
+  const view = new SplatView(cvS, {spin:0, gs:1});
+  view.setShape('torus', 9000);
+
+  let spin = 0;
+  function frame(dt){
+    spin += dt * 0.28;
+    view.rotY = 0.6 + spin;
+    view.render();
+  }
+  /* 首帧立即画（保证任何环境下都有内容） */
+  drawMesh(cvM);
+  view.render();
+  if(STATIC) return;                 // 静态模式到此为止，页面保持静止
+
+  let last = performance.now();
+  (function loop(now){
+    const dt = Math.min(0.05, (now-last)/1000); last = now;
+    frame(dt);
+    requestAnimationFrame(loop);
+  })(performance.now());
+
+  window.addEventListener('resize', ()=>{ drawMesh(cvM); view.resize(); });
+})();
+
+/* ---------------------------------------------------------- 初始化：交互区 */
+(function initPlay(){
+  const cv = document.getElementById('cvPlay');
+  const view = new SplatView(cv, {spin:0.3, rotX:-0.35, rotY:0.5});
+  window.__view = view;              // 调试/自动化测试用（读取旋转与缩放状态）
+  const shapes = {torus:'torus', sphere:'sphere', heart:'heart'};
+  /* 支持 ?shape=heart&n=600 直达某个状态（便于分享和截图） */
+  const qs = typeof location!=='undefined' ? location.search : '';
+  const qShape = (qs.match(/[?&]shape=(\w+)/)||[])[1];
+  const qN = Number((qs.match(/[?&]n=(\d+)/)||[])[1]);
+  let shape = (qShape && shapes[qShape]) ? qShape : 'torus';
+  let count = (qN>=300 && qN<=30000) ? qN : 6000;
+
+  const rgCount=document.getElementById('rgCount'), lbCount=document.getElementById('lbCount');
+  const rgSize =document.getElementById('rgSize'),  lbSize =document.getElementById('lbSize');
+  const rgSpin =document.getElementById('rgSpin'),  lbSpin =document.getElementById('lbSpin');
+  const sc = document.getElementById('splatCount');
+
+  function rebuild(){
+    view.setShape(shape, count);
+    lbCount.textContent = count.toLocaleString();
+    if(sc) sc.textContent = count.toLocaleString();
+    view.render();
+  }
+  rebuild();
+
+  rgCount.addEventListener('input', ()=>{ count = +rgCount.value; rebuild(); });
+  rgSize.addEventListener('input', ()=>{
+    view.sizeMul = +rgSize.value;
+    lbSize.textContent = (+rgSize.value).toFixed(2)+'×';
+  });
+  rgSpin.addEventListener('input', ()=>{
+    view.spin = +rgSpin.value;
+    lbSpin.textContent = (+rgSpin.value).toFixed(2);
+  });
+
+  const btns = {torus:document.getElementById('bTorus'), sphere:document.getElementById('bSphere'), heart:document.getElementById('bHeart')};
+  function pick(k){
+    shape = k;
+    Object.entries(btns).forEach(([key,el])=> el.classList.toggle('on', key===k));
+    rebuild();
+  }
+  btns.torus.addEventListener('click', ()=>pick('torus'));
+  btns.sphere.addEventListener('click', ()=>pick('sphere'));
+  btns.heart.addEventListener('click', ()=>pick('heart'));
+  document.getElementById('bReset').addEventListener('click', ()=>{
+    view.rotX=-0.35; view.rotY=0.5; view.zoom=1;
+  });
+
+  /* 拖拽旋转 + 滚轮缩放 */
+  let dragging=false, lx=0, ly=0;
+  cv.addEventListener('pointerdown', e=>{
+    dragging=true; lx=e.clientX; ly=e.clientY;
+    cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing';
+  });
+  cv.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+    view.rotY += dx*0.008;
+    view.rotX = clamp(view.rotX + dy*0.008, -1.45, 1.45);
+  });
+  const endDrag = e=>{ dragging=false; cv.style.cursor='grab'; };
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', endDrag);
+  cv.addEventListener('wheel', e=>{
+    e.preventDefault();
+    view.zoom = clamp(view.zoom * (e.deltaY>0?0.92:1.08), 0.45, 3.2);
+  }, {passive:false});
+
+  window.addEventListener('resize', ()=>{ view.resize(); view.render(); });
+  if(STATIC){ view.render(); return; }   // 静态模式：只画一帧
+
+  let last=performance.now();
+  (function loop(now){
+    const dt = Math.min(0.05,(now-last)/1000); last=now;
+    if(!dragging) view.rotY += dt*view.spin;
+    view.render();
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
+</body>
+</html>
